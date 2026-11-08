@@ -1,6 +1,9 @@
 name: Build beryllium kernel (no-SUSFS bisect)
 
 on:
+  push:
+    paths:
+      - '.github/workflows/build-kernel-nosusfs.yml'
   workflow_dispatch:
 
 jobs:
