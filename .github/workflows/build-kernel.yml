@@ -23,13 +23,18 @@ jobs:
       - name: Configure kernel (base mi845 + beryllium fragment)
         working-directory: kernel
         run: |
-          make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" vendor/xiaomi/mi845_defconfig
+          export ARCH=arm64
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          make O=out CROSS_COMPILE=$CROSS_COMPILE DTC_FLAGS="-f" vendor/xiaomi/mi845_defconfig
           ./scripts/kconfig/merge_config.sh -m -O ./out arch/arm64/configs/vendor/xiaomi/mi845_defconfig arch/arm64/configs/vendor/xiaomi/beryllium.config
+          make O=out CROSS_COMPILE=$CROSS_COMPILE DTC_FLAGS="-f" olddefconfig
 
       - name: Build kernel
         working-directory: kernel
         run: |
-          make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" -j"$(nproc)" Image.gz-dtb
+          export ARCH=arm64
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          make O=out CROSS_COMPILE=$CROSS_COMPILE DTC_FLAGS="-f" -j"$(nproc)" Image.gz-dtb
 
       - name: Upload kernel image
         uses: actions/upload-artifact@v4
