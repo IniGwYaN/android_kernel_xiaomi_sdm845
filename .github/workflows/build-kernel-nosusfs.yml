@@ -61,3 +61,5 @@ CONFIG_CPU_BOOST=y
         with:
           name: beryllium-lineage20-bakasu-nosusfs
           path: kernel/out/arch/arm64/boot/Image.gz-dtb
+
+# rebuild trigger
