@@ -4,6 +4,15 @@ on:
   push:
     branches: [lineage-20]
   workflow_dispatch:
+    inputs:
+      susfs:
+        description: Include SUSFS v2
+        required: true
+        default: 'yes'
+        type: choice
+        options:
+          - yes
+          - no
 
 jobs:
   build:
@@ -29,6 +38,7 @@ jobs:
           grep -q "drivers/kernelsu/Kconfig" drivers/Kconfig || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" drivers/Kconfig
 
       - name: Integrate SUSFS master (2.x) kernel-side
+        if: inputs.susfs == 'yes'
         working-directory: kernel
         run: |
           git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu susfs
@@ -48,7 +58,7 @@ jobs:
           ./scripts/kconfig/merge_config.sh -m -O ./out arch/arm64/configs/vendor/xiaomi/mi845_defconfig arch/arm64/configs/vendor/xiaomi/beryllium.config
           ./scripts/config --file out/.config --enable KSU
           ./scripts/config --file out/.config --enable KSU_MANUAL_HOOK
-          ./scripts/config --file out/.config --enable KSU_SUSFS
+          [ "${{ inputs.susfs }}" = yes ] && ./scripts/config --file out/.config --enable KSU_SUSFS || true
           make O=out CROSS_COMPILE=$CROSS_COMPILE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 DTC_FLAGS="-f" olddefconfig
 
       - name: Build kernel
