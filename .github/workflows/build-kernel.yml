@@ -13,6 +13,14 @@ on:
         options:
           - 'yes'
           - 'no'
+      mode:
+        description: SUSFS feature profile
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - 'full'
+          - 'min'
 
 jobs:
   build:
@@ -59,6 +67,13 @@ jobs:
           ./scripts/config --file out/.config --enable KSU
           ./scripts/config --file out/.config --enable KSU_MANUAL_HOOK
           [ "${{ inputs.susfs }}" = yes ] && ./scripts/config --file out/.config --enable KSU_SUSFS || true
+          if [ "${{ inputs.mode }}" = min ]; then
+            ./scripts/config --file out/.config --disable KSU_SUSFS_SPOOF_UNAME
+            ./scripts/config --file out/.config --disable KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+            ./scripts/config --file out/.config --disable KSU_SUSFS_OPEN_REDIRECT
+            ./scripts/config --file out/.config --disable KSU_SUSFS_SUS_PATH
+            ./scripts/config --file out/.config --disable KSU_SUSFS_ENABLE_LOG
+          fi
           make O=out CROSS_COMPILE=$CROSS_COMPILE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 DTC_FLAGS="-f" olddefconfig
 
       - name: Build kernel
