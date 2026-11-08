@@ -20,24 +20,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y crossbuild-essential-arm64 crossbuild-essential-armhf git
 
-      - name: Integrate BakaSU (KernelSU)
+      - name: Integrate BakaSU v4.2.0-rc3 (KernelSU)
         working-directory: kernel
         run: |
-          git clone --depth 1 -b v4.1.0 https://github.com/Baka-SU/BakaSU KernelSU
+          git clone --depth 1 -b v4.2.0-rc3 https://github.com/Baka-SU/BakaSU KernelSU
           ln -sfn ../KernelSU/kernel drivers/kernelsu
           grep -q "kernelsu" drivers/Makefile || printf "\nobj-$(CONFIG_KSU) += kernelsu/\n" >> drivers/Makefile
           grep -q "drivers/kernelsu/Kconfig" drivers/Kconfig || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" drivers/Kconfig
 
-      - name: Integrate SUSFS (kernel-4.9, latest)
+      - name: Integrate SUSFS kernel-side (kernel-4.9, latest)
         working-directory: kernel
         run: |
           git clone --depth 1 -b kernel-4.9 https://gitlab.com/simonpunk/susfs4ksu susfs
-          cp susfs/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch KernelSU/
           cp susfs/kernel_patches/50_add_susfs_in_kernel-4.9.patch .
           cp susfs/kernel_patches/fs/* fs/
           cp susfs/kernel_patches/include/linux/* include/linux/
-          cd KernelSU && patch -p1 -N < 10_enable_susfs_for_ksu.patch
-          cd .. && patch -p1 -N < 50_add_susfs_in_kernel-4.9.patch
+          patch -p1 -N < 50_add_susfs_in_kernel-4.9.patch
 
       - name: Configure kernel (base mi845 + beryllium + KSU/SUSFS)
         working-directory: kernel
@@ -48,7 +46,10 @@ jobs:
           make O=out CROSS_COMPILE=$CROSS_COMPILE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 DTC_FLAGS="-f" vendor/xiaomi/mi845_defconfig
           ./scripts/kconfig/merge_config.sh -m -O ./out arch/arm64/configs/vendor/xiaomi/mi845_defconfig arch/arm64/configs/vendor/xiaomi/beryllium.config
           ./scripts/config --file out/.config --enable KSU
+          ./scripts/config --file out/.config --enable KSU_MANUAL_HOOK
           ./scripts/config --file out/.config --enable KSU_SUSFS
+          ./scripts/config --file out/.config --enable KSU_SUSFS_SUS_PATH
+          ./scripts/config --file out/.config --enable KSU_SUSFS_SUS_MOUNT
           make O=out CROSS_COMPILE=$CROSS_COMPILE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 DTC_FLAGS="-f" olddefconfig
 
       - name: Build kernel
