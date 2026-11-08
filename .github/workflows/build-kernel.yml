@@ -15,17 +15,16 @@ jobs:
           ref: lineage-20
           path: kernel
 
-      - name: Install toolchain (Clang 14 + binutils)
+      - name: Install toolchain (GCC + binutils)
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-14 lld-14 llvm-14 crossbuild-essential-arm64
+          sudo apt-get install -y crossbuild-essential-arm64
 
       - name: Build kernel
         working-directory: kernel
         run: |
-          export PATH=/usr/lib/llvm-14/bin:$PATH
-          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" sdm845_defconfig
-          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" -j"$(nproc)" Image.gz-dtb
+          make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" sdm845_defconfig
+          make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" -j"$(nproc)" Image.gz-dtb
 
       - name: Upload kernel image
         uses: actions/upload-artifact@v4
