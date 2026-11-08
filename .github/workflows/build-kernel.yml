@@ -36,19 +36,7 @@ jobs:
           cp susfs/kernel_patches/fs/* fs/
           cp susfs/kernel_patches/include/linux/* include/linux/
           patch -p1 -N < 50_add_susfs_in_kernel-4.9.patch || true
-          python3 - <<'EOF'
-import sys
-p="fs/proc/task_mmu.c"
-s=open(p).read()
-anchor="#include <linux/mm_inline.h>\n"
-ins="#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT\n#include <linux/susfs_def.h>\n#endif\n"
-if "susfs_def.h" not in s:
-    if anchor not in s:
-        sys.exit("ANCHOR_NOT_FOUND")
-    s=s.replace(anchor, anchor+ins, 1)
-    open(p,"w").write(s)
-print("task_mmu.c include OK")
-EOF
+          python3 -c "import sys;s=open('fs/proc/task_mmu.c').read();a='#include <linux/mm_inline.h>\n';i='#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT\n#include <linux/susfs_def.h>\n#endif\n';open('fs/proc/task_mmu.c','w').write(s.replace(a,a+i,1) if ('susfs_def.h' not in s and a in s) else s)"
 
       - name: Configure kernel (base mi845 + beryllium + KSU/SUSFS)
         working-directory: kernel
@@ -79,4 +67,3 @@ EOF
         with:
           name: beryllium-lineage20-bakasu-susfs
           path: kernel/out/arch/arm64/boot/Image.gz-dtb
-
