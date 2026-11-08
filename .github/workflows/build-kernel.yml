@@ -20,12 +20,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang-14 lld-14 llvm-14 crossbuild-essential-arm64
 
-      - name: Build kernel (stock lineage-20)
+      - name: Build kernel
         working-directory: kernel
         run: |
           export PATH=/usr/lib/llvm-14/bin:$PATH
-          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- sdm845_defconfig
-          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- -j"$(nproc)" Image.gz-dtb
+          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" sdm845_defconfig
+          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" -j"$(nproc)" Image.gz-dtb
 
       - name: Upload kernel image
         uses: actions/upload-artifact@v4
