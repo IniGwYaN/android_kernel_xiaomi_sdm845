@@ -20,10 +20,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y crossbuild-essential-arm64
 
+      - name: Configure kernel (base mi845 + beryllium fragment)
+        working-directory: kernel
+        run: |
+          make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" vendor/xiaomi/mi845_defconfig
+          ./scripts/kconfig/merge_config.sh -m -O ./out arch/arm64/configs/vendor/xiaomi/mi845_defconfig arch/arm64/configs/vendor/xiaomi/beryllium.config
+
       - name: Build kernel
         working-directory: kernel
         run: |
-          make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" sdm845_defconfig
           make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- DTC_FLAGS="-f" -j"$(nproc)" Image.gz-dtb
 
       - name: Upload kernel image
