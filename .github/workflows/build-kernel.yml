@@ -36,6 +36,19 @@ jobs:
           cp susfs/kernel_patches/fs/* fs/
           cp susfs/kernel_patches/include/linux/* include/linux/
           patch -p1 -N < 50_add_susfs_in_kernel-4.9.patch || true
+          python3 - <<'EOF'
+import sys
+p="fs/proc/task_mmu.c"
+s=open(p).read()
+anchor="#include <linux/mm_inline.h>\n"
+ins="#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT\n#include <linux/susfs_def.h>\n#endif\n"
+if "susfs_def.h" not in s:
+    if anchor not in s:
+        sys.exit("ANCHOR_NOT_FOUND")
+    s=s.replace(anchor, anchor+ins, 1)
+    open(p,"w").write(s)
+print("task_mmu.c include OK")
+EOF
 
       - name: Configure kernel (base mi845 + beryllium + KSU/SUSFS)
         working-directory: kernel
@@ -49,6 +62,8 @@ jobs:
           ./scripts/config --file out/.config --enable KSU_MANUAL_HOOK
           ./scripts/config --file out/.config --enable KSU_SUSFS
           ./scripts/config --file out/.config --enable KSU_SUSFS_SUS_PATH
+          ./scripts/config --file out/.config --disable KSU_SUSFS_SUS_MOUNT
+          ./scripts/config --file out/.config --disable KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
           make O=out CROSS_COMPILE=$CROSS_COMPILE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 DTC_FLAGS="-f" olddefconfig
 
       - name: Build kernel
