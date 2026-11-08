@@ -34,6 +34,7 @@ jobs:
           git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu susfs
           cp susfs/kernel_patches/fs/susfs.c fs/
           cp susfs/kernel_patches/include/linux/susfs.h include/linux/
+          python3 -c "s=open('fs/susfs.c').read(); a='#include <linux/version.h>\n'; sh='#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)\nstatic inline int path_umount(struct path *p, int f) { return -ENOSYS; }\n#endif\n'; s=s.replace(a,a+sh,1) if 'static inline int path_umount' not in s else s; open('fs/susfs.c','w').write(s)"
           patch -p1 -N < susfs/kernel_patches/50_add_susfs_in_kernel-4.9.patch || true
 
       - name: Configure kernel (base mi845 + beryllium + KSU/SUSFS)
