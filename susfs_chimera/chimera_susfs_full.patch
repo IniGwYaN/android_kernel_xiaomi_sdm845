@@ -1,7 +1,7 @@
 diff --git a/drivers/input/input.c b/drivers/input/input.c
 --- a/drivers/input/input.c
 +++ b/drivers/input/input.c
-@@ -377,12 +444,27 @@
+@@ -377,11 +444,26 @@
  	return disposition;
  }
  
@@ -97,7 +97,7 @@ diff --git a/fs/exec.c b/fs/exec.c
  	/*
  	 * We move the actual failure in case of RLIMIT_NPROC excess from
  	 * set*uid() to execve() because too many poorly written programs
-@@ -1800,10 +1852,26 @@
+@@ -1800,9 +1852,25 @@
  	}
  
  	retval = exec_binprm(bprm);
@@ -127,7 +127,7 @@ diff --git a/fs/exec.c b/fs/exec.c
 diff --git a/fs/Kconfig b/fs/Kconfig
 --- a/fs/Kconfig
 +++ b/fs/Kconfig
-@@ -312,4 +313,8 @@
+@@ -312,3 +313,7 @@
  source "fs/dlm/Kconfig"
  
  endmenu
@@ -139,7 +139,7 @@ diff --git a/fs/Kconfig b/fs/Kconfig
 diff --git a/fs/Makefile b/fs/Makefile
 --- a/fs/Makefile
 +++ b/fs/Makefile
-@@ -13,7 +13,9 @@
+@@ -13,6 +13,8 @@
  		pnode.o splice.o sync.o utimes.o \
  		stack.o fs_struct.o statfs.o fs_pin.o nsfs.o
  
@@ -395,7 +395,7 @@ diff --git a/fs/namei.c b/fs/namei.c
  /*
   * A helper for ->readlink().  This should be used *ONLY* for symlinks that
   * have ->get_link() not calling nd_jump_link().  Using (or not using) it
-@@ -4891,7 +5017,16 @@
+@@ -4891,6 +5017,15 @@
  		if (IS_ERR(link))
  			return PTR_ERR(link);
  	}
@@ -715,7 +715,7 @@ diff --git a/fs/namespace.c b/fs/namespace.c
  	new = copy_tree(old, old->mnt.mnt_root, copy_flags);
  	if (IS_ERR(new)) {
  		namespace_unlock();
-@@ -3596,4 +3798,35 @@
+@@ -3596,3 +3798,34 @@
  	.install	= mntns_install,
  	.owner		= mntns_owner,
  };
@@ -872,7 +872,7 @@ diff --git a/fs/notify/fdinfo.c b/fs/notify/fdinfo.c
  		seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
  			   inode_mark->wd, inode->i_ino, inode->i_sb->s_dev,
  			   inotify_mark_user_mask(mark));
-@@ -101,8 +180,12 @@
+@@ -101,7 +180,11 @@
  
  #ifdef CONFIG_FANOTIFY
  
@@ -931,7 +931,7 @@ diff --git a/fs/open.c b/fs/open.c
  	if (mode & ~S_IRWXO)	/* where's F_OK, X_OK, W_OK, R_OK? */
  		return -EINVAL;
  
-@@ -411,6 +433,17 @@
+@@ -411,7 +433,19 @@
  
  	old_cred = override_creds(override_cred);
  retry:
@@ -944,7 +944,9 @@ diff --git a/fs/open.c b/fs/open.c
 +	susfs_ksu_handle_faccessat_helper(&dfd, &fname, &mode, NULL);
 +
 +orig_flow:
-+	res = user_path_at(dfd, filename, lookup_flags, &path);
++	res = filename_lookup(dfd, fname, lookup_flags, &path, NULL);
++#else
+ 	res = user_path_at(dfd, filename, lookup_flags, &path);
 +#endif
  	if (res)
  		goto out;
@@ -969,7 +971,7 @@ diff --git a/fs/open.c b/fs/open.c
  
  	if (fd)
  		return fd;
-@@ -1090,9 +1132,29 @@
+@@ -1090,8 +1132,28 @@
  		return PTR_ERR(tmp);
  
  	fd = get_unused_fd_flags(flags);
@@ -1078,7 +1080,7 @@ diff --git a/fs/proc/base.c b/fs/proc/base.c
  			nr_files++;
  	}
  
-@@ -2373,7 +2430,11 @@
+@@ -2373,6 +2430,10 @@
  				vma = vma->vm_next) {
  			if (!vma->vm_file)
  				continue;
@@ -1093,7 +1095,7 @@ diff --git a/fs/proc/base.c b/fs/proc/base.c
 diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -26,9 +26,20 @@
+@@ -26,8 +26,19 @@
  }
  #endif
  
@@ -1155,7 +1157,7 @@ diff --git a/fs/proc/fd.c b/fs/proc/fd.c
  
  	task = get_proc_task(m->private);
  	if (!task)
-@@ -52,10 +72,84 @@
+@@ -52,9 +72,83 @@
  	if (ret)
  		return ret;
  
@@ -1240,9 +1242,9 @@ diff --git a/fs/proc/fd.c b/fs/proc/fd.c
  	show_fd_locks(m, file, files);
  	if (seq_has_overflowed(m))
 
-diff --git a/fs/proc_namespace.c b/fs/proc_namespace.c
---- a/fs/proc_namespace.c
-+++ b/fs/proc_namespace.c
+diff --git a/fs/proc/namespace.c b/fs/proc/namespace.c
+--- a/fs/proc/namespace.c
++++ b/fs/proc/namespace.c
 @@ -10,11 +10,21 @@
  #include <linux/nsproxy.h>
  #include <linux/security.h>
@@ -1508,7 +1510,7 @@ diff --git a/fs/proc_namespace.c b/fs/proc_namespace.c
  static int show_vfsstat(struct seq_file *m, struct vfsmount *mnt)
  {
  	struct proc_mounts *p = m->private;
-@@ -303,17 +536,35 @@
+@@ -303,16 +536,34 @@
  
  static int mounts_open(struct inode *inode, struct file *file)
  {
@@ -1646,7 +1648,7 @@ diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
  
  		pm.pos = 0;
  		end = (start_vaddr + PAGEMAP_WALK_SIZE) & PAGEMAP_WALK_MASK;
-@@ -1577,8 +1638,16 @@
+@@ -1577,7 +1638,15 @@
  		if (end < start_vaddr || end > end_vaddr)
  			end = end_vaddr;
  		down_read(&mm->mmap_sem);
@@ -1666,7 +1668,7 @@ diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
 diff --git a/fs/read_write.c b/fs/read_write.c
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
-@@ -581,12 +581,29 @@
+@@ -581,11 +581,28 @@
  		file->f_pos = pos;
  }
  
@@ -1855,7 +1857,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  	dirent = buf->previous;
  	if (dirent) {
  		if (signal_pending(current))
-@@ -350,7 +430,10 @@
+@@ -350,6 +430,9 @@
  	if (!f.file)
  		return -EBADF;
  
@@ -1970,7 +1972,7 @@ diff --git a/fs/stat.c b/fs/stat.c
  	if ((flag & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT |
  		      AT_EMPTY_PATH)) != 0)
  		goto out;
-@@ -103,8 +165,20 @@
+@@ -103,7 +165,19 @@
  	if (flag & AT_EMPTY_PATH)
  		lookup_flags |= LOOKUP_EMPTY;
  retry:
@@ -1983,7 +1985,7 @@ diff --git a/fs/stat.c b/fs/stat.c
 +	susfs_ksu_handle_stat_helper(&dfd, &fname, &flag);
 +
 +orig_flow:
-+	error = user_path_at(dfd, filename, lookup_flags, &path);
++	error = filename_lookup(dfd, fname, lookup_flags, &path, NULL);
 +#else
  	error = user_path_at(dfd, filename, lookup_flags, &path);
 +#endif
@@ -2004,7 +2006,7 @@ diff --git a/fs/statfs.c b/fs/statfs.c
  #include "internal.h"
  
  static int flags_by_mnt(int mnt_flags)
-@@ -63,10 +66,89 @@
+@@ -63,9 +66,88 @@
  	return retval;
  }
  
@@ -2108,7 +2110,7 @@ diff --git a/fs/super.c b/fs/super.c
  
  static LIST_HEAD(super_blocks);
  static DEFINE_SPINLOCK(sb_lock);
-@@ -922,12 +926,46 @@
+@@ -922,11 +926,45 @@
   */
  static int unnamed_dev_start = 1;
  
@@ -2158,8 +2160,30 @@ diff --git a/fs/super.c b/fs/super.c
 diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
 --- a/kernel/kallsyms.c
 +++ b/kernel/kallsyms.c
-
-@@ -608,9 +607,68 @@
+@@ -20,18 +19,14 @@
+ #include <linux/err.h>
+ #include <linux/proc_fs.h>
+ #include <linux/sched.h>	/* for cond_resched */
+-#include <linux/mm.h>
+ #include <linux/ctype.h>
+ #include <linux/slab.h>
++#include <linux/filter.h>
+ #include <linux/compiler.h>
+ 
+-#include <asm/sections.h>
+-
+-#ifdef CONFIG_KALLSYMS_ALL
+-#define all_var 1
+-#else
+-#define all_var 0
+-#endif
++#ifdef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
++#include <linux/susfs_def.h>
++#endif // #ifdef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+ 
+ /*
+  * These will be re-linked against their real values
+@@ -608,8 +607,67 @@
  		seq_printf(m, "%pK %c %s\t[%s]\n", (void *)iter->value,
  			   type, iter->name, iter->module_name);
  	} else
@@ -2242,7 +2266,7 @@ diff --git a/kernel/reboot.c b/kernel/reboot.c
  /*
   * Reboot system call: for obvious reasons only root may call it,
   * and even root needs to set up some magic numbers in the registers
-@@ -284,7 +288,16 @@
+@@ -284,6 +288,15 @@
  	char buffer[256];
  	int ret = 0;
  
@@ -2289,7 +2313,7 @@ diff --git a/kernel/sys.c b/kernel/sys.c
  	kruid = make_kuid(ns, ruid);
  	keuid = make_kuid(ns, euid);
  	ksuid = make_kuid(ns, suid);
-@@ -1143,13 +1156,22 @@
+@@ -1143,12 +1156,21 @@
  	return ret;
  }
  
@@ -2325,7 +2349,7 @@ diff --git a/mm/memory.c b/mm/memory.c
  
  #include <asm/io.h>
  #include <asm/mmu_context.h>
-@@ -4468,7 +4478,12 @@
+@@ -4468,6 +4478,11 @@
  		void *maddr;
  		struct page *page = NULL;
  
