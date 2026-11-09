@@ -1242,9 +1242,9 @@ diff --git a/fs/proc/fd.c b/fs/proc/fd.c
  	show_fd_locks(m, file, files);
  	if (seq_has_overflowed(m))
 
-diff --git a/fs/proc/namespace.c b/fs/proc/namespace.c
---- a/fs/proc/namespace.c
-+++ b/fs/proc/namespace.c
+diff --git a/fs/proc_namespace.c b/fs/proc_namespace.c
+--- a/fs/proc_namespace.c
++++ b/fs/proc_namespace.c
 @@ -10,11 +10,21 @@
  #include <linux/nsproxy.h>
  #include <linux/security.h>
