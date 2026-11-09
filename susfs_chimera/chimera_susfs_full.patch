@@ -944,9 +944,7 @@ diff --git a/fs/open.c b/fs/open.c
 +	susfs_ksu_handle_faccessat_helper(&dfd, &fname, &mode, NULL);
 +
 +orig_flow:
-+	res = filename_lookup(dfd, fname, lookup_flags, &path, NULL);
-+#else
- 	res = user_path_at(dfd, filename, lookup_flags, &path);
++	res = user_path_at(dfd, filename, lookup_flags, &path);
 +#endif
  	if (res)
  		goto out;
@@ -2160,29 +2158,7 @@ diff --git a/fs/super.c b/fs/super.c
 diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
 --- a/kernel/kallsyms.c
 +++ b/kernel/kallsyms.c
-@@ -20,18 +19,14 @@
- #include <linux/err.h>
- #include <linux/proc_fs.h>
- #include <linux/sched.h>	/* for cond_resched */
--#include <linux/mm.h>
- #include <linux/ctype.h>
- #include <linux/slab.h>
-+#include <linux/filter.h>
- #include <linux/compiler.h>
- 
--#include <asm/sections.h>
--
--#ifdef CONFIG_KALLSYMS_ALL
--#define all_var 1
--#else
--#define all_var 0
--#endif
-+#ifdef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
-+#include <linux/susfs_def.h>
-+#endif // #ifdef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
- 
- /*
-  * These will be re-linked against their real values
+
 @@ -608,8 +607,67 @@
  		seq_printf(m, "%pK %c %s\t[%s]\n", (void *)iter->value,
  			   type, iter->name, iter->module_name);
