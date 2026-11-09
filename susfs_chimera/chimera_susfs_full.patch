@@ -1700,7 +1700,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  int iterate_dir(struct file *file, struct dir_context *ctx)
  {
  	struct inode *inode = file_inode(file);
-@@ -118,6 +132,9 @@
+@@ -118,6 +123,9 @@
  struct readdir_callback {
  	struct dir_context ctx;
  	struct old_linux_dirent __user * dirent;
@@ -1710,7 +1710,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  	int result;
  };
  
-@@ -128,6 +145,9 @@
+@@ -128,6 +136,9 @@
  		container_of(ctx, struct readdir_callback, ctx);
  	struct old_linux_dirent __user * dirent;
  	unsigned long d_ino;
@@ -1720,12 +1720,10 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  
  	if (buf->result)
  		return -EINVAL;
-@@ -136,6 +156,20 @@
+@@ -136,6 +147,18 @@
  		buf->result = -EOVERFLOW;
  		return -EOVERFLOW;
  	}
-+	if (hide_name(name, namlen) && buf->ctx.romnt)
-+		return 0;
 +#ifdef CONFIG_KSU_SUSFS_SUS_PATH
 +	inode = ilookup(buf->sb, ino);
 +	if (!inode) {
@@ -1741,7 +1739,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  	buf->result++;
  	dirent = buf->dirent;
  	if (!access_ok(VERIFY_WRITE, dirent,
-@@ -167,6 +201,9 @@
+@@ -167,6 +190,9 @@
  	if (!f.file)
  		return -EBADF;
  
@@ -1751,7 +1749,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  	error = iterate_dir(f.file, &buf.ctx);
  	if (buf.result)
  		error = buf.result;
-@@ -192,6 +229,9 @@
+@@ -192,6 +218,9 @@
  	struct dir_context ctx;
  	struct linux_dirent __user * current_dir;
  	struct linux_dirent __user * previous;
@@ -1761,7 +1759,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  	int count;
  	int error;
  };
-@@ -205,6 +245,9 @@
+@@ -205,6 +234,9 @@
  	unsigned long d_ino;
  	int reclen = ALIGN(offsetof(struct linux_dirent, d_name) + namlen + 2,
  		sizeof(long));
@@ -1771,12 +1769,10 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  
  	buf->error = verify_dirent_name(name, namlen);
  	if (unlikely(buf->error))
-@@ -217,6 +260,20 @@
+@@ -217,6 +249,18 @@
  		buf->error = -EOVERFLOW;
  		return -EOVERFLOW;
  	}
-+	if (hide_name(name, namlen) && buf->ctx.romnt)
-+		return 0;
 +#ifdef CONFIG_KSU_SUSFS_SUS_PATH
 +	inode = ilookup(buf->sb, ino);
 +	if (!inode) {
@@ -1792,7 +1788,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  	dirent = buf->previous;
  	if (dirent) {
  		if (signal_pending(current))
-@@ -264,6 +321,9 @@
+@@ -264,6 +308,9 @@
  	if (!f.file)
  		return -EBADF;
  
@@ -1802,7 +1798,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  	error = iterate_dir(f.file, &buf.ctx);
  	if (error >= 0)
  		error = buf.error;
-@@ -282,6 +342,9 @@
+@@ -282,6 +329,9 @@
  	struct dir_context ctx;
  	struct linux_dirent64 __user * current_dir;
  	struct linux_dirent64 __user * previous;
@@ -1812,7 +1808,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  	int count;
  	int error;
  };
-@@ -294,6 +357,9 @@
+@@ -294,6 +344,9 @@
  		container_of(ctx, struct getdents_callback64, ctx);
  	int reclen = ALIGN(offsetof(struct linux_dirent64, d_name) + namlen + 1,
  		sizeof(u64));
@@ -1822,12 +1818,10 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  
  	buf->error = verify_dirent_name(name, namlen);
  	if (unlikely(buf->error))
-@@ -301,6 +367,20 @@
+@@ -301,6 +354,18 @@
  	buf->error = -EINVAL;	/* only used if we fail.. */
  	if (reclen > buf->count)
  		return -EINVAL;
-+	if (hide_name(name, namlen) && buf->ctx.romnt)
-+		return 0;
 +#ifdef CONFIG_KSU_SUSFS_SUS_PATH
 +	inode = ilookup(buf->sb, ino);
 +	if (!inode) {
@@ -1843,7 +1837,7 @@ diff --git a/fs/readdir.c b/fs/readdir.c
  	dirent = buf->previous;
  	if (dirent) {
  		if (signal_pending(current))
-@@ -350,6 +430,9 @@
+@@ -350,6 +415,9 @@
  	if (!f.file)
  		return -EBADF;
  
