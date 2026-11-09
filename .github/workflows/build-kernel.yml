@@ -58,10 +58,7 @@ jobs:
           export CROSS_COMPILE=aarch64-linux-gnu-
           export CROSS_COMPILE_ARM32=arm-linux-gnueabihf-
           make O=out CROSS_COMPILE=$CROSS_COMPILE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 DTC_FLAGS="-f" vendor/xiaomi/mi845_defconfig
-          printf 'CONFIG_CPU_FREQ_GOV_INTERACTIVE=y
-CONFIG_MSM_PERFORMANCE=y
-CONFIG_CPU_BOOST=y
-' >> arch/arm64/configs/vendor/xiaomi/beryllium.config
+          printf 'CONFIG_CPU_FREQ_GOV_INTERACTIVE=y\nCONFIG_MSM_PERFORMANCE=y\nCONFIG_CPU_BOOST=y\n' >> arch/arm64/configs/vendor/xiaomi/beryllium.config
           ./scripts/kconfig/merge_config.sh -m -O ./out arch/arm64/configs/vendor/xiaomi/mi845_defconfig arch/arm64/configs/vendor/xiaomi/beryllium.config
           ./scripts/config --file out/.config --enable KSU
           ./scripts/config --file out/.config --enable KSU_MANUAL_HOOK
@@ -84,5 +81,3 @@ CONFIG_CPU_BOOST=y
         with:
           name: beryllium-lineage20-bakasu-chimera-susfs
           path: kernel/out/arch/arm64/boot/Image.gz-dtb
-
-# status
