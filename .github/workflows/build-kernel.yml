@@ -51,6 +51,13 @@ jobs:
           cp ../susfs_src/susfs_chimera/susfs_def.h include/linux/susfs_def.h
           patch -p1 -N < ../susfs_src/susfs_chimera/chimera_susfs_full.patch
 
+      - name: Fix 4.9 compat (filename_lookup->user_path_at, all_var)
+        working-directory: kernel
+        run: |
+          sed -i 's|res = filename_lookup(dfd, fname, lookup_flags, &path, NULL);|res = user_path_at(dfd, filename, lookup_flags, \&path);|g' fs/open.c fs/stat.c
+          sed -i 's|error = filename_lookup(dfd, fname, lookup_flags, &path, NULL);|error = user_path_at(dfd, filename, lookup_flags, \&path);|g' fs/stat.c
+          awk '/#include <linux\/filter.h>/{print; print "#ifdef CONFIG_KALLSYMS_ALL"; print "#define all_var 1"; print "#else"; print "#define all_var 0"; print "#endif"; next} {print}' kernel/kallsyms.c > tmp && mv tmp kernel/kallsyms.c
+
       - name: Configure kernel
         working-directory: kernel
         run: |
