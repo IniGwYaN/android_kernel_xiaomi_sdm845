@@ -401,12 +401,7 @@ diff --git a/fs/namei.c b/fs/namei.c
 diff --git a/fs/namespace.c b/fs/namespace.c
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -20,14 +20,24 @@
- #include <linux/fs_struct.h>	/* get_fs_root et.al. */
- #include <linux/fsnotify.h>	/* fsnotify_vfsmount_delete */
- #include <linux/uaccess.h>
--#include <linux/file.h>
- #include <linux/proc_ns.h>
+@@ -25,8 +25,19 @@
  #include <linux/magic.h>
  #include <linux/bootmem.h>
  #include <linux/task_work.h>
@@ -416,18 +411,17 @@ diff --git a/fs/namespace.c b/fs/namespace.c
 +
  #include "pnode.h"
  #include "internal.h"
- 
++
 +#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 +extern bool susfs_is_current_ksu_domain(void);
 +extern struct static_key_true susfs_is_sdcard_android_data_not_decrypted;
 +
 +#define CL_COPY_MNT_NS BIT(25) /* used by copy_mnt_ns() */
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-+
+ 
  /* Maximum number of mounts in a mount namespace */
  unsigned int sysctl_mount_max __read_mostly = 100000;
- 
-@@ -121,6 +131,10 @@
+@@ -121,6 +132,10 @@
  static void mnt_free_id(struct mount *mnt)
  {
  	int id = mnt->mnt_id;
@@ -438,7 +432,7 @@ diff --git a/fs/namespace.c b/fs/namespace.c
  	spin_lock(&mnt_id_lock);
  	ida_remove(&mnt_id_ida, id);
  	if (mnt_id_start > id)
-@@ -140,6 +154,17 @@
+@@ -140,6 +155,17 @@
  	if (!ida_pre_get(&mnt_group_ida, GFP_KERNEL))
  		return -ENOMEM;
  
@@ -456,10 +450,11 @@ diff --git a/fs/namespace.c b/fs/namespace.c
  	res = ida_get_new_above(&mnt_group_ida,
  				mnt_group_start,
  				&mnt->mnt_group_id);
-@@ -202,6 +227,126 @@
+@@ -201,6 +227,126 @@
+ 	pin_remove(p);
  	mntput(&m->mnt);
  }
- 
++
 +#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 +/* A copy of alloc_vfsmnt() but allocates the fake mnt_id for mounts
 + * that are unshared by ksu process
@@ -579,11 +574,10 @@ diff --git a/fs/namespace.c b/fs/namespace.c
 +	return NULL;
 +}
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-+
+ 
  static struct mount *alloc_vfsmnt(const char *name)
  {
- 	struct mount *mnt = kmem_cache_zalloc(mnt_cache, GFP_KERNEL);
-@@ -647,6 +792,22 @@
+@@ -647,6 +793,22 @@
  	struct hlist_head *head = m_hash(mnt, dentry);
  	struct mount *p;
  
@@ -606,7 +600,7 @@ diff --git a/fs/namespace.c b/fs/namespace.c
  	hlist_for_each_entry_rcu(p, head, mnt_hash)
  		if (&p->mnt_parent->mnt == mnt && p->mnt_mountpoint == dentry)
  			return p;
-@@ -983,7 +1144,21 @@
+@@ -983,7 +1145,21 @@
  	if (!type)
  		return ERR_PTR(-ENODEV);
  
@@ -628,7 +622,7 @@ diff --git a/fs/namespace.c b/fs/namespace.c
  	if (!mnt)
  		return ERR_PTR(-ENOMEM);
  
-@@ -1031,14 +1206,46 @@
+@@ -1031,14 +1207,46 @@
  }
  EXPORT_SYMBOL_GPL(vfs_submount);
  
@@ -676,7 +670,7 @@ diff --git a/fs/namespace.c b/fs/namespace.c
  	if (!mnt)
  		return ERR_PTR(-ENOMEM);
  
-@@ -1063,6 +1270,14 @@
+@@ -1063,6 +1271,14 @@
  
  	mnt->mnt.mnt_flags = old->mnt.mnt_flags;
  	mnt->mnt.mnt_flags &= ~(MNT_WRITE_HOLD|MNT_MARKED|MNT_INTERNAL);
@@ -691,7 +685,7 @@ diff --git a/fs/namespace.c b/fs/namespace.c
  	/* Don't allow unprivileged users to change mount flags */
  	if (flag & CL_UNPRIVILEGED) {
  		mnt->mnt.mnt_flags |= MNT_LOCK_ATIME;
-@@ -3020,6 +3219,9 @@
+@@ -3020,6 +3236,9 @@
  	copy_flags = CL_COPY_UNBINDABLE | CL_EXPIRE;
  	if (user_ns != ns->user_ns)
  		copy_flags |= CL_SHARED_TO_SLAVE | CL_UNPRIVILEGED;
@@ -701,7 +695,7 @@ diff --git a/fs/namespace.c b/fs/namespace.c
  	new = copy_tree(old, old->mnt.mnt_root, copy_flags);
  	if (IS_ERR(new)) {
  		namespace_unlock();
-@@ -3596,3 +3798,34 @@
+@@ -3596,3 +3815,34 @@
  	.install	= mntns_install,
  	.owner		= mntns_owner,
  };
