@@ -1,6 +1,9 @@
 name: Build beryllium kernel (BakaSU + Chimera SUSFS v2.3.0)
 
 on:
+  push:
+    paths:
+      - '.github/workflows/build-kernel-chimera.yml'
   workflow_dispatch:
     inputs:
       susfs:
