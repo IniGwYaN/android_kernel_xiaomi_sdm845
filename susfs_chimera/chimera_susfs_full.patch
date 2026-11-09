@@ -43,7 +43,7 @@ diff --git a/fs/exec.c b/fs/exec.c
  
  #include <asm/uaccess.h>
  #include <asm/mmu_context.h>
-@@ -1673,6 +1686,29 @@
+@@ -1673,6 +1676,29 @@
  	return ret;
  }
  
@@ -73,18 +73,17 @@ diff --git a/fs/exec.c b/fs/exec.c
  /*
   * sys_execve() executes a new program.
   */
-@@ -1686,10 +1722,23 @@
+@@ -1686,9 +1712,21 @@
  	struct file *file;
  	struct files_struct *displaced;
  	int retval;
-+	bool is_su;
 +#ifdef CONFIG_KSU_SUSFS
 +	bool is_su_session = false;
 +#endif // #ifdef CONFIG_KSU_SUSFS
  
  	if (IS_ERR(filename))
  		return PTR_ERR(filename);
- 
++
 +#ifdef CONFIG_KSU_SUSFS
 +	if (likely(susfs_is_current_proc_no_su()))
 +		goto orig_flow;
@@ -93,11 +92,10 @@ diff --git a/fs/exec.c b/fs/exec.c
 +
 +orig_flow:
 +#endif
-+
+ 
  	/*
  	 * We move the actual failure in case of RLIMIT_NPROC excess from
- 	 * set*uid() to execve() because too many poorly written programs
-@@ -1800,9 +1852,25 @@
+@@ -1800,8 +1838,13 @@
  	}
  
  	retval = exec_binprm(bprm);
@@ -107,22 +105,10 @@ diff --git a/fs/exec.c b/fs/exec.c
 +#endif // #ifdef CONFIG_KSU_SUSFS
  	if (retval < 0)
  		goto out;
++
  
-+	if (is_su && capable(CAP_SYS_ADMIN)) {
-+		current->flags |= PF_SU;
-+		su_exec();
-+	}
-+
-+	if (capable(CAP_SYS_ADMIN)) {
-+		if (unlikely(!strcmp(filename->name, ZYGOTE32_BIN)))
-+			zygote32_task = current;
-+		else if (unlikely(!strcmp(filename->name, ZYGOTE64_BIN)))
-+			zygote64_task = current;
-+	}
-+
  	/* execve succeeded */
  	current->fs->in_exec = 0;
- 	current->in_execve = 0;
 
 diff --git a/fs/Kconfig b/fs/Kconfig
 --- a/fs/Kconfig
