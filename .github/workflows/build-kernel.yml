@@ -40,8 +40,7 @@ jobs:
         run: |
           git clone --depth 1 -b v4.2.0-rc3 https://github.com/Baka-SU/BakaSU KernelSU
           ln -sfn ../KernelSU/kernel drivers/kernelsu
-          grep -q "kernelsu" drivers/Makefile || printf 'obj-$(CONFIG_KSU) += kernelsu/
-' >> drivers/Makefile
+          grep -q "kernelsu" drivers/Makefile || echo 'obj-$(CONFIG_KSU) += kernelsu/' >> drivers/Makefile
           grep -q "drivers/kernelsu/Kconfig" drivers/Kconfig || sed -i "/endmenu/i source \"drivers/kernelsu/Kconfig\"" drivers/Kconfig
 
       - name: Integrate Chimera SUSFS v2.3.0 kernel-side
