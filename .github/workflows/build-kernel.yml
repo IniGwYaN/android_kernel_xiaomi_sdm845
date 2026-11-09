@@ -90,3 +90,4 @@ jobs:
         with:
           name: beryllium-lineage20-bakasu-chimera-susfs
           path: kernel/out/arch/arm64/boot/Image.gz-dtb
+# cfg
