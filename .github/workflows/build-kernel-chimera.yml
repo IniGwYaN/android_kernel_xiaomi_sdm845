@@ -79,3 +79,5 @@ CONFIG_CPU_BOOST=y
         with:
           name: beryllium-lineage20-bakasu-chimera-susfs
           path: kernel/out/arch/arm64/boot/Image.gz-dtb
+
+# trigger rebuild
