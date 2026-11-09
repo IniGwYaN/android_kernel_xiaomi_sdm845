@@ -70,10 +70,8 @@ jobs:
           ./scripts/kconfig/merge_config.sh -m -O ./out arch/arm64/configs/vendor/xiaomi/mi845_defconfig arch/arm64/configs/vendor/xiaomi/beryllium.config
           ./scripts/config --file out/.config --enable KSU
           ./scripts/config --file out/.config --enable KSU_MANUAL_HOOK
-          if [ "${{ inputs.susfs }}" = yes ]; then
-            ./scripts/config --file out/.config --enable KSU_SUSFS
-            ./scripts/config --file out/.config --enable KSU_SUSFS_AUTO_MOUNT_SOURCE_SPOOF
-          fi
+          ./scripts/config --file out/.config --enable KSU_SUSFS
+          ./scripts/config --file out/.config --enable KSU_SUSFS_AUTO_MOUNT_SOURCE_SPOOF
           make O=out CROSS_COMPILE=$CROSS_COMPILE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 DTC_FLAGS="-f" olddefconfig
           grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=" out/.config || true
 
@@ -90,4 +88,3 @@ jobs:
         with:
           name: beryllium-lineage20-bakasu-chimera-susfs
           path: kernel/out/arch/arm64/boot/Image.gz-dtb
-# cfg
