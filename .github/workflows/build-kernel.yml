@@ -1,4 +1,4 @@
-name: Build beryllium kernel (LineageOS lineage-20 + BakaSU + SUSFS v2.3.0)
+name: Build beryllium kernel (REPRO3 fork@a7809bd68e)
 
 on:
   push:
@@ -20,8 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: LineageOS/android_kernel_xiaomi_sdm845
-          ref: lineage-20
+          repository: IniGwYaN/android_kernel_xiaomi_sdm845
+          ref: a7809bd68e
           path: kernel
 
       - uses: actions/checkout@v4
@@ -94,5 +94,5 @@ jobs:
       - name: Upload kernel image
         uses: actions/upload-artifact@v4
         with:
-          name: beryllium-lineage20-bakasu-chimera-susfs
+          name: beryllium-repro3-v055
           path: kernel/out/arch/arm64/boot/Image.gz-dtb
