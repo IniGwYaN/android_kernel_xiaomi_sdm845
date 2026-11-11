@@ -1,4 +1,4 @@
-name: Build beryllium kernel (REPRO v0.5.5: fork@a7809bd68e + gcc9/20.04)
+name: Build beryllium kernel (REPRO v0.5.5: fork@a7809bd68e (host gcc))
 
 on:
   workflow_dispatch:
@@ -6,7 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    container: ubuntu:20.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -14,10 +13,10 @@ jobs:
           ref: a7809bd68e
           path: kernel
 
-      - name: Install toolchain (Ubuntu 20.04 -> gcc 9.4.0)
+      - name: Install toolchain
         run: |
-          apt-get update
-          apt-get install -y git patch crossbuild-essential-arm64 crossbuild-essential-armhf
+          sudo apt-get update
+          sudo apt-get install -y crossbuild-essential-arm64 crossbuild-essential-armhf git patch
 
       - name: Integrate BakaSU main
         working-directory: kernel
