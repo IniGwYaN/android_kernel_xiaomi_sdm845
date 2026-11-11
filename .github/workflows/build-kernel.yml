@@ -1,6 +1,8 @@
 name: Build beryllium kernel (REPRO v0.5.5: fork@a7809bd68e (host gcc))
 
 on:
+  push:
+    branches: [v0.5.5-repro2]
   workflow_dispatch:
 
 jobs:
