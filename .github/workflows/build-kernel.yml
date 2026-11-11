@@ -61,7 +61,6 @@ jobs:
       - name: Apply minimal thermal edits (no thermal_core swap)
         working-directory: kernel
         run: |
-          cp ../susfs_src/thermal_min/step_wise.c drivers/thermal/step_wise.c
           cp ../susfs_src/thermal_min/msm_lmh_dcvs.c drivers/thermal/qcom/msm_lmh_dcvs.c
 
       - name: Configure kernel
