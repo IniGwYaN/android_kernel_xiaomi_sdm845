@@ -58,12 +58,11 @@ jobs:
           sed -i 's|error = filename_lookup(dfd, fname, lookup_flags, &path, NULL);|error = user_path_at(dfd, filename, lookup_flags, \&path);|g' fs/stat.c
           awk '/#include <linux\/filter.h>/{print; print "#ifdef CONFIG_KALLSYMS_ALL"; print "#define all_var 1"; print "#else"; print "#define all_var 0"; print "#endif"; next} {print}' kernel/kallsyms.c > tmp && mv tmp kernel/kallsyms.c
 
-      - name: Apply Chimera thermal disable
+      - name: Apply minimal thermal edits (no thermal_core swap)
         working-directory: kernel
         run: |
-          cp ../susfs_src/thermal_chimera/step_wise.c drivers/thermal/step_wise.c
-          cp ../susfs_src/thermal_chimera/thermal_core.c drivers/thermal/thermal_core.c
-          cp ../susfs_src/thermal_chimera/msm_lmh_dcvs.c drivers/thermal/qcom/msm_lmh_dcvs.c
+          cp ../susfs_src/thermal_min/step_wise.c drivers/thermal/step_wise.c
+          cp ../susfs_src/thermal_min/msm_lmh_dcvs.c drivers/thermal/qcom/msm_lmh_dcvs.c
 
       - name: Configure kernel
         working-directory: kernel
